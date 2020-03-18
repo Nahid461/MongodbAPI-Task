@@ -1,6 +1,6 @@
 let express = require("express");
-let model = require("../db/user");
 let router = express.Router();
+let model = require("../db/user");
 let joi = require("@hapi/joi");
 
  //FETCH THE Data
