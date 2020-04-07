@@ -8,14 +8,20 @@ let movie = require("./routes/movie");
 let TMovie = require("./routes/movieAPI/movie");
 let TUser = require("./routes/movieAPI/user");
 let fawn = require("fawn");
-let port = process.env.PORT || 4500;
+let config = require("config");
+let port = process.env.PORT || 4600;
 app.use(express.json());
-app.use("/api/users",user);
+
+app.use("/api/users", user);
 app.use("/api/login", auth);
 app.use("/genre", genre);
 app.use("/movie", movie);
-app.use("/api/movie",TMovie);
-app.use("/api/movie/user",TUser);
+app.use("/api/movie", TMovie);
+app.use("/api/movie/user", TUser);
+if (!config.get("ENV_PASSWORD")) {
+        console.log("ACCESS DENIED");
+        process.exit(1);
+}
 
  
 
@@ -23,6 +29,5 @@ mongoose.connect("mongodb://localhost/pk", {useNewUrlParser: true, useUnifiedTop
         .then(() => console.log("connected to db"))
         .catch(error => console.log(`something went wrong ${error.message}`));
         fawn.init(mongoose);
-app.listen(port, () => console.log(`port is working on ${port}`));
+app.listen(port,() => console.log(`port is working on ${port}`));
      
-

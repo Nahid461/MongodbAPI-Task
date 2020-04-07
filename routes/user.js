@@ -1,10 +1,14 @@
 let express = require("express");
-let router = express.Router();
 let model = require("../db/user");
+let router = express.Router();
 let joi = require("@hapi/joi");
+let bcrypt = require("bcrypt");
+let jwt = require("jsonwebtoken");
+let userMiddleware = require("../middleware/user");
+let Admin = require("../middleware/Admin");
 
  //FETCH THE Data
-router.get("/allUsers", async (req, res) =>{
+router.get("/allUsers", userMiddleware, async (req, res) => {
      let users = await model.find();
      res.send({ data:users });
 });
@@ -12,15 +16,15 @@ router.get("/allUsers", async (req, res) =>{
 //find the data by id
 router.get("/user/:id", async (req, res) =>{
     let user = await model.findById(req.params.id);
-    if(!user) {return res.status(404).send({ message: "Invalid user"}) };
+    if(!user) {return res.status(404).send({ message: "Invalid user id"}) };
     res.send({ data: user });
 });
 
 //create the user data
-router.post("/user/newUser", async (req, res) =>{
-    let user = await model.find({ "UserLogin.emailId": req.body
+router.post("/user/newUser", userMiddleware, async (req, res) =>{
+    let user = await model.findOne({ "UserLogin.emailId": req.body
     .UserLogin.emailId });
-    console.log(user);
+    //console.log(user);
 
 if (user) { return res.status(403).send({message:"emailId already exist"})
 }
@@ -33,8 +37,12 @@ if (user) { return res.status(403).send({message:"emailId already exist"})
         Address: req.body.Address,
         UserLogin: req.body.UserLogin
     });
+    let salt = await bcrypt.genSalt(10);
+    newData.UserLogin.passWord = await bcrypt.hash( newData.UserLogin
+    .passWord, salt );
+    let token = newData.jwtToken();
     let data = await newData.save();
-    res.send({ message: "thank you", d: data });
+    res.header("x-auth-token", token).send({ message: "thank you", d: data, t: token });
 });
 
 router.put("/user/updateUser/:id", async (req, res) =>{
@@ -50,7 +58,7 @@ router.put("/user/updateUser/:id", async (req, res) =>{
 
 });
 
-router.delete("/user/removeUser/:id", async (req, res) =>{
+router.delete("/user/removeUser/:id", [userMiddleware,Admin], async (req, res) =>{
     let user = await model.findByIdAndRemove(req.params.id);
     if (!user) { return res.status(404).send({ message: "Invalid id"})
    };
@@ -72,4 +80,5 @@ function ValidationError(error) {
     });
     return Schema.validate(error);
 }
+
 module.exports = router;

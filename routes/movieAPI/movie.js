@@ -13,7 +13,7 @@ router.post("/movieShow", async (req, res ) => {
        stocks: req.body.stocks
 });
  let items = await data.save();
- res.send({ i: item });
+ res.send({ i: items });
 
 });
 

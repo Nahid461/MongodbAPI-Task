@@ -10,14 +10,14 @@ router.post("/movie/user", async (req, res) => {
 message }) };
  
 let m = await movie.movieModel.findById(req.body.movieId);
-    if(m.stock ===0) { return res.status(403).send({ message: 
+    if(m.stock ===  0) { return res.status(403).send({ message: 
     "OUT OF STOCK "}) };
 
 let user = new userModel.userModel({
     firstName: req.body.firstName,
     lastName: req.body.lastName,
-    email: req.body.email,
-    movie: {
+    email: req.body.email, 
+    movie: { 
         name: m.name,
         stocks: m.stocks
     }
@@ -31,7 +31,7 @@ await fawn
         stocks: -1
     }
 }).run();
-
+    
 res.send(user);
 
 
