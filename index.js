@@ -7,6 +7,7 @@ let genre = require("./routes/genre");
 let movie = require("./routes/movie");
 let TMovie = require("./routes/movieAPI/movie");
 let TUser = require("./routes/movieAPI/user");
+let pagination = require("./routes/pagination");
 let fawn = require("fawn");
 let config = require("config");
 let port = process.env.PORT || 4600;
@@ -18,6 +19,10 @@ app.use("/genre", genre);
 app.use("/movie", movie);
 app.use("/api/movie", TMovie);
 app.use("/api/movie/user", TUser);
+app.use("/api/user/pagination", pagination);
+
+
+
 if (!config.get("ENV_PASSWORD")) {
         console.log("ACCESS DENIED");
         process.exit(1);
